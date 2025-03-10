@@ -36,3 +36,5 @@ export const scrapeShips = async (character) => {
     }
     return shipData;
 };
+
+export default scrapeShips;
