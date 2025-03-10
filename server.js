@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
-import fetchShips from './scraper.js'; // Scraping logic (implemented)
+import { scrapeShips } from './scraper.js'; // Scraping logic (implemented)
 import { fetchAniListShips, fetchMALShips } from './scraper_sources.js'; // Additional sources
 import axios from 'axios';
 import puppeteer from 'puppeteer';
