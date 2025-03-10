@@ -1,5 +1,3 @@
-import axios from 'axios';
-import * as cheerio from 'cheerio';
 import puppeteer from 'puppeteer';
 
 const SOURCES = [
@@ -8,23 +6,32 @@ const SOURCES = [
         url: (character) => `https://shipping.fandom.com/wiki/${character}`,
         parse: async (character) => {
             try {
-                const response = await axios.get(`https://shipping.fandom.com/wiki/${character}`);
-                const $ = cheerio.load(response.data);
-                const categories = {};
+                const browser = await puppeteer.launch({ headless: true });
+                const page = await browser.newPage();
+                await page.goto(`https://shipping.fandom.com/wiki/${character}`, { waitUntil: 'domcontentloaded' });
                 
-                $('h2').each((_, element) => {
-                    const category = $(element).text().trim();
-                    const ships = [];
-                    
-                    $(element).nextUntil('h2', 'ul').find('li a').each((_, ship) => {
-                        ships.push($(ship).text().trim());
+                const categories = await page.evaluate(() => {
+                    const data = {};
+                    document.querySelectorAll('h2').forEach(header => {
+                        const category = header.textContent.trim();
+                        const ships = [];
+                        let next = header.nextElementSibling;
+                        while (next && next.tagName !== 'H2') {
+                            if (next.tagName === 'UL') {
+                                next.querySelectorAll('li a').forEach(ship => {
+                                    ships.push(ship.textContent.trim());
+                                });
+                            }
+                            next = next.nextElementSibling;
+                        }
+                        if (ships.length > 0) {
+                            data[category] = ships;
+                        }
                     });
-                    
-                    if (ships.length > 0) {
-                        categories[category] = ships;
-                    }
+                    return data;
                 });
                 
+                await browser.close();
                 return categories;
             } catch (error) {
                 console.error(`Failed to fetch from Shipping Fandom:`, error.message);
