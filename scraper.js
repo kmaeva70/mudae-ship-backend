@@ -7,7 +7,8 @@ const SOURCES = [
         parse: async (character) => {
             try {
                 const browser = await puppeteer.launch({
-                    headless: "new",
+                    executablePath: await puppeteer.executablePath(),
+                    headless: true,
                     args: ["--no-sandbox", "--disable-setuid-sandbox"]
                 });
                 const page = await browser.newPage();
@@ -64,4 +65,3 @@ const scrapeShips = async (character) => {
 };
 
 export default scrapeShips;
-
