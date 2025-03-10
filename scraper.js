@@ -6,9 +6,19 @@ const SOURCES = [
         url: (character) => `https://shipping.fandom.com/wiki/${character}`,
         parse: async (character) => {
             try {
-                const browser = await puppeteer.launch({ headless: true });
+                const browser = await puppeteer.launch({
+                    headless: "new",
+                    args: ["--no-sandbox", "--disable-setuid-sandbox"]
+                });
                 const page = await browser.newPage();
-                await page.goto(`https://shipping.fandom.com/wiki/${character}`, { waitUntil: 'domcontentloaded' });
+                await page.goto(`https://shipping.fandom.com/wiki/${character}`, { waitUntil: 'networkidle2' });
+                
+                // Take a screenshot for debugging
+                await page.screenshot({ path: 'debug.png', fullPage: true });
+                
+                // Log the page content for debugging
+                const pageContent = await page.content();
+                console.log(pageContent);
                 
                 const categories = await page.evaluate(() => {
                     const data = {};
@@ -54,4 +64,3 @@ const scrapeShips = async (character) => {
 };
 
 export default scrapeShips;
-
