@@ -20,3 +20,13 @@ export const SOURCES = [
         api: false
     }
 ];
+
+export const fetchAniListShips = async (character) => {
+    // Placeholder function for AniList API scraping
+    return [`AniList ship 1 for ${character}`, `AniList ship 2 for ${character}`];
+};
+
+export const fetchMALShips = async (character) => {
+    // Placeholder function for MyAnimeList API scraping
+    return [`MAL ship 1 for ${character}`, `MAL ship 2 for ${character}`];
+};
