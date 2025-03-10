@@ -1,4 +1,4 @@
-import puppeteer from 'puppeteer';
+import puppeteer from 'puppeteer-core';
 
 const SOURCES = [
     {
@@ -7,7 +7,7 @@ const SOURCES = [
         parse: async (character) => {
             try {
                 const browser = await puppeteer.launch({
-                    executablePath: await puppeteer.executablePath(),
+                    executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/google-chrome-stable',
                     headless: true,
                     args: ["--no-sandbox", "--disable-setuid-sandbox"]
                 });
@@ -63,5 +63,7 @@ const scrapeShips = async (character) => {
     }
     return shipData;
 };
+
+export default scrapeShips;
 
 export default scrapeShips;
