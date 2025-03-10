@@ -7,7 +7,8 @@ const SOURCES = [
         parse: async (character) => {
             try {
                 const browser = await puppeteer.launch({
-                    headless: "new",
+                    executablePath: "/usr/bin/chromium",
+                    headless: true,
                     args: ["--no-sandbox", "--disable-setuid-sandbox"]
                 });
                 const page = await browser.newPage();
