@@ -1,35 +1,44 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
+import puppeteer from 'puppeteer';
 
 const SOURCES = [
     {
         name: 'Shipping Fandom',
         url: (character) => `https://shipping.fandom.com/wiki/${character}`,
-        parse: ($) => {
-            const categories = {};
-            $('h2').each((_, element) => {
-                const category = $(element).text().trim();
-                const ships = [];
-                $(element).nextUntil('h2', 'ul').find('li a').each((_, ship) => {
-                    ships.push($(ship).text().trim());
+        parse: async (character) => {
+            try {
+                const response = await axios.get(`https://shipping.fandom.com/wiki/${character}`);
+                const $ = cheerio.load(response.data);
+                const categories = {};
+                
+                $('h2').each((_, element) => {
+                    const category = $(element).text().trim();
+                    const ships = [];
+                    
+                    $(element).nextUntil('h2', 'ul').find('li a').each((_, ship) => {
+                        ships.push($(ship).text().trim());
+                    });
+                    
+                    if (ships.length > 0) {
+                        categories[category] = ships;
+                    }
                 });
-                if (ships.length > 0) {
-                    categories[category] = ships;
-                }
-            });
-            return categories;
+                
+                return categories;
+            } catch (error) {
+                console.error(`Failed to fetch from Shipping Fandom:`, error.message);
+                return {};
+            }
         }
     }
-    // Future: Add more sources like MyAnimeList, AniList
 ];
 
-export const scrapeShips = async (character) => {
+const scrapeShips = async (character) => {
     const shipData = {};
     for (const source of SOURCES) {
         try {
-            const response = await axios.get(source.url(character));
-            const $ = cheerio.load(response.data);
-            shipData[source.name] = source.parse($);
+            shipData[source.name] = await source.parse(character);
         } catch (error) {
             console.error(`Failed to fetch from ${source.name}:`, error.message);
         }
@@ -38,3 +47,4 @@ export const scrapeShips = async (character) => {
 };
 
 export default scrapeShips;
+
